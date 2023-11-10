@@ -7,6 +7,9 @@
 #include <chrono>
 #include <cstdlib>
 #include <cstring>
+#include <iceoryx_hoofs/cxx/optional.hpp>
+#include <iceoryx_posh/capro/service_description.hpp>
+#include <iceoryx_posh/iceoryx_posh_types.hpp>
 #include <iceoryx_posh/popo/port_queue_policies.hpp>
 #include <iceoryx_posh/popo/publisher_options.hpp>
 #include <iostream>
@@ -246,18 +249,28 @@ bool DMACV4l2Cam::GrabImg() noexcept {
 
   /* Initial Iceoryx */
 #ifdef PUB_WITH_ICEORYX
-  constexpr char APP_NAME[] = "iox-cpp-publisher-untyped";
+  /* App Name Tag: "camera-publisher-" + @CAM_NAME@ */
+  char APP_NAME[50] = "camera-publisher-";
+  std::strcat(APP_NAME, cam_config_.cam_name.c_str());
+
+  INFO("Create iceoryx app: %s", APP_NAME);
   iox::runtime::PoshRuntime::initRuntime(APP_NAME);
+
+  /* Channel Name Tag: "channel" + @CAM_NAME@ + "channel" */
+  INFO("Create iceoryx ipc channel %s", cam_config_.cam_name.c_str());
+  iox::cxx::string<50> channel_name;
+  channel_name.unsafe_assign(cam_config_.cam_name.c_str());
+  // std::memcpy((void *)channel_name.c_str(), cam_config_.cam_name.c_str(),
+  //             sizeof(cam_config_.cam_name.c_str()));
+
   iox::popo::PublisherOptions publishoptions;
-  publishoptions.historyCapacity = 5;
+  publishoptions.historyCapacity = 0;
   publishoptions.nodeName = "cam_driver";
   publishoptions.subscriberTooSlowPolicy =
       iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
 
-  /* Channel Name Tag: "Camera" + @DEVICE_NAME@ + "Object" */
-  INFO("v4l2 create ipc channel %s", cam_config_.cam_name.c_str());
-  iox::popo::Publisher<BgrImgBuf> img_publisher({"Camera", "Video0", "Object"},
-                                                publishoptions);
+  iox::popo::Publisher<BgrImgBuf> img_publisher(
+      {"camera", channel_name, "channel"}, publishoptions);
 #endif
 
 #ifdef JETPACK_SUPPORT
@@ -274,7 +287,7 @@ bool DMACV4l2Cam::GrabImg() noexcept {
         seq_num = 0;
       }
 
-      /* Dequeue a camera buff */
+      /* Dequeue a camera buffiox::capro::string */
       auto v4l2_buf = context.v4l2_buffer_list[seq_num];
       if (ioctl(context.cam_fd, VIDIOC_DQBUF, &v4l2_buf) < 0) {
         ERROR_RETURN("Failed to dequeue camera buff: %s (%d)", strerror(errno),
@@ -328,12 +341,6 @@ bool DMACV4l2Cam::GrabImg() noexcept {
           .and_then([&](auto &sample) {
             std::memcpy((void *)sample->buf.c_str(), gpu_bgr_buf, bgr_img_size);
             sample->send_ts = send_time;
-            // sample->captured_ts_us =
-            //     v4l2_buf.timestamp.tv_sec + 1e-9 *
-            //     v4l2_buf.timestamp.tv_usec;
-            // printf("sending timestamp: %ld \n", sample->captured_ts_us);
-            // std::cout << "sending timestamp: " << sample->captured_ts_us
-            //           << std::endl;
             sample.publish();
           })
           .or_else([](auto &error) {

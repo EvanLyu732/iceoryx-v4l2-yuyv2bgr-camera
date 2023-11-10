@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
     return (EXIT_FAILURE);
   }
 
-  cout << "cam driver start as " << cmd_start_type << "\n";
+  INFO("cam driver start as %s", cmd_start_type.c_str());
 
   std::shared_ptr<V4L2::CV4l2Cam> cam_ptr;
   if (cmd_start_type == "ros") {
