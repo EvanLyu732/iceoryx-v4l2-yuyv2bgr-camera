@@ -53,7 +53,7 @@ struct ImgSubscriber {
 
 int main(int argc, char** argv) {
   if (argc < 2) {
-    std::cerr << "No args given, Usage E.g: ./dma_recevier ud_camera0"
+    std::cerr << "No args given, Usage E.g: ./dma_recevier camera_0"
               << std::endl;
     return (EXIT_FAILURE);
   }

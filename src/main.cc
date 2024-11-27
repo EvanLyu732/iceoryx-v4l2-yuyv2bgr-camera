@@ -118,12 +118,11 @@ int main(int argc, char** argv) {
   std::shared_ptr<V4L2::CV4l2Cam> cam_ptr;
   if (cmd_start_type == "ros") {
     cam_ptr = CamInitializer::initRosMode(argc, argv, "image_publisher");
+    ros::init(argc, argv, "dma_image_node");
+  } else {
+    cam_ptr = getInitCamForNativeMode(vm);
   }
 
-  ros::init(argc, argv, "dma_image_node");
-
-  cam_ptr = getInitCamForNativeMode(vm);
   cam_ptr->GrabImg();
-
   return 0;
 }

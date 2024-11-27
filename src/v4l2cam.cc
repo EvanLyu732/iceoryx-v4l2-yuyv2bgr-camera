@@ -15,8 +15,8 @@
 #include <iostream>
 #include <memory>
 
-#include "ShmImgBuf.h"
-#include "ShmUtility.h"
+#include "shmImgBuf.h"
+#include "shmUtility.h"
 #include "cuda_runtime_api.h"
 #include "fcntl.h"
 

@@ -90,3 +90,15 @@ Camera Controls
 ## Traps
 
 - using `v4l2_open` api would lead to unexpected error.
+
+
+## Dependencies
+
+1. ros1 catkin required, check `CMakeLists.txt` for more details.
+2. if iceoryx is not installed, then `bash install_iceoryx.sh` to install iceoryx.
+3. run `bash build.sh` to build the project.
+
+
+
+
+
