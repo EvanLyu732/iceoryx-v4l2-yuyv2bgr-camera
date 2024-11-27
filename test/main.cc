@@ -1,6 +1,6 @@
 #include <cstdio>
 
-#include "ShmImgBuf.h"
+#include "shmImgBuf.h"
 #include "iceoryx_posh/popo/subscriber.hpp"
 
 //! [include subscriber]
