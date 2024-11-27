@@ -92,11 +92,13 @@ Camera Controls
 - using `v4l2_open` api would lead to unexpected error.
 
 
-## Dependencies
+## Usage
 
-1. ros1 catkin required, check `CMakeLists.txt` for more details.
-2. if iceoryx is not installed, then `bash install_iceoryx.sh` to install iceoryx.
-3. run `bash build.sh` to build the project.
+1. ROS1 catkin build system is required. Check `CMakeLists.txt` for detailed dependencies.
+2. If Iceoryx is not installed, run `bash install_iceoryx.sh` to install it.
+3. Run `bash build.sh` to build the project.
+4. Run `bash test.sh` to start the camera publisher. Make sure to specify the correct video device name.
+5. Navigate to the `build/test` directory and run `./dma_receiver camera_0` to start the subscriber.
 
 
 
